@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Proxy Google Script ke GitHub/Vercel</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      color: #333;
+    }
+    input, button {
+      padding: 0.6rem;
+      margin: 0.3rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    pre {
+      background: #fff;
+      border: 1px solid #ddd;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: left;
+      max-width: 600px;
+      margin: 2rem auto;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <h1>Koneksi ke Google Script API</h1>
+  <p>Masukkan parameter atau klik kirim untuk menguji.</p>
+
+  <input id="inputText" type="text" placeholder="Masukkan teks..." />
+  <button onclick="sendRequest()">Kirim ke Script</button>
+
+  <pre id="output">Menunggu respon...</pre>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbyX2ytP1zFC8Z-mxFeuh3MQcu31kEUHOP_M7IXuiURBg2f3LrRYLiBkBOPWwIhpJZXdvw/exec";
+
+    async function sendRequest() {
+      const value = document.getElementById("inputText").value || "Hello!";
+      const output = document.getElementById("output");
+      output.textContent = "Mengirim permintaan...";
+
+      try {
+        const response = await fetch(`${scriptURL}?q=${encodeURIComponent(value)}`);
+        const data = await response.text(); // jika JSON, gunakan response.json()
+        output.textContent = data;
+      } catch (error) {
+        output.textContent = "Terjadi kesalahan: " + error.message;
+      }
+    }
+  </script>
+</body>
+</html>
