@@ -10224,11 +10224,13 @@
                                 z-index: 100000;
                                 opacity: 0;
                                 visibility: hidden;
+                                pointer-events: none;
                                 transition: opacity 0.3s ease, visibility 0.3s ease;
                             }
                             #confirm-overlay.show {
                                 opacity: 1;
                                 visibility: visible;
+                                pointer-events: auto;
                             }
                             .confirm-box {
                                 background: var(--bg-card, #161616);
