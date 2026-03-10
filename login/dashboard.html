@@ -7,7 +7,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <title>Dashboard - Audition 3D Pro Suite</title>
-    <link rel="icon" href="https://i.ibb.co.com/pvBDRR2W/ico.png" type="image/png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <!-- Three.js Dependencies for Viewer -->
@@ -4029,7 +4028,7 @@
                             btn.disabled = false;
 
                             if (link === "not_found") {
-                                alert("File not found. Please contact support.");
+                                showToast("File not found. Please contact support.", "error");
                             } else {
                                 // Membuka tab baru untuk download
                                 const a = document.createElement('a');
@@ -4063,7 +4062,7 @@
 
                 function handleError(err) {
                     document.getElementById("loading").style.display = 'none';
-                    alert("An error occurred: " + err.message);
+                    showToast("An error occurred: " + err.message, "error");
                     console.error(err);
                 }
 
@@ -6786,7 +6785,7 @@
         } catch (err) {
             console.error(err);
             hideLoading();
-            alert("Failed to load animation");
+            showToast("Failed to load animation", "error");
         }
     }
 
@@ -7211,7 +7210,7 @@
         itemName = itemName.replace(/^["']|["']$/g, '');
 
         if (!itemName || itemName === '"' || itemName === "'") {
-            alert('Please enter a valid RGM name.');
+            showToast('Please enter a valid RGM name.', 'warning');
             return;
         }
 
@@ -7453,7 +7452,7 @@
             hideLoading();
         } catch (error) {
             console.error('Error loading RGM:', error);
-            alert('Failed to load RGM file: ' + error.message);
+            showToast('Failed to load RGM file: ' + error.message, 'error');
             hideLoading();
         }
     }
@@ -7660,7 +7659,7 @@
 
         } catch (e) {
             console.error('Error reading ZIP:', e);
-            alert('Failed to read ZIP file: ' + e.message);
+            showToast('Failed to read ZIP file: ' + e.message, 'error');
             hideLoading();
         }
     }
@@ -9276,7 +9275,7 @@
                     hideLoading();
                 } catch (error) {
                     console.error('Failed to load texture:', error);
-                    alert('Failed to load texture: ' + error.message);
+                    showToast('Failed to load texture: ' + error.message, 'error');
                     hideLoading();
                 }
             }
@@ -9360,7 +9359,7 @@
 
             } catch (error) {
                 console.error('Failed to load textures:', error);
-                alert('Failed to load textures: ' + error.message);
+                showToast('Failed to load textures: ' + error.message, 'error');
                 hideLoading();
             }
         };
@@ -10470,7 +10469,135 @@
 
 
     </div>
-</body>
+    <!-- Modern Toast Notifications -->
+    <style>
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
 
+        .toast-msg {
+            background: rgba(22, 22, 22, 0.85); /* var(--bg-card) */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--accent-color, #6366f1);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: #ffffff;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            pointer-events: auto;
+            transform: translateX(120%);
+            opacity: 0;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+            max-width: 350px;
+            word-break: break-word;
+        }
+
+        .toast-msg.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-msg.hiding {
+            transform: translateX(120%);
+            opacity: 0;
+        }
+
+        .toast-msg.toast-error {
+            border-left-color: var(--danger-color, #ef4444);
+        }
+        
+        .toast-msg.toast-error i {
+            color: var(--danger-color, #ef4444);
+        }
+
+        .toast-msg.toast-warning {
+            border-left-color: #f59e0b; /* Amber */
+        }
+
+        .toast-msg.toast-warning i {
+            color: #f59e0b;
+        }
+
+        .toast-icon {
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            color: var(--accent-light, #818cf8);
+        }
+
+        .toast-content {
+            flex-grow: 1;
+            line-height: 1.4;
+        }
+
+        .toast-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 4px;
+            transition: color 0.2s ease;
+        }
+
+        .toast-close:hover {
+            color: #ffffff;
+        }
+    </style>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <script>
+        window.showToast = function(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const toast = document.createElement('div');
+            toast.className = `toast-msg toast-${type}`;
+
+            let iconClass = 'fa-info-circle';
+            if (type === 'error') iconClass = 'fa-exclamation-circle';
+            if (type === 'warning') iconClass = 'fa-exclamation-triangle';
+
+            toast.innerHTML = `
+                <i class="fas ${iconClass} toast-icon"></i>
+                <div class="toast-content">${message}</div>
+                <button class="toast-close" onclick="this.parentElement.classList.add('hiding'); setTimeout(() => this.parentElement.remove(), 400)"><i class="fas fa-times"></i></button>
+            `;
+
+            container.appendChild(toast);
+
+            // Trigger reflow
+            void toast.offsetWidth;
+
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.classList.remove('show');
+                    toast.classList.add('hiding');
+                    setTimeout(() => {
+                        if (toast.parentElement) {
+                            toast.remove();
+                        }
+                    }, 400);
+                }
+            }, 5000);
+        }
+    </script>
+</body>
 
 </html>
