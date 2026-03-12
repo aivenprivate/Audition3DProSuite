@@ -5,9 +5,8 @@
     <meta charset="UTF-8">
     <script src="api.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     <title>Login - Audition 3D Pro Suite</title>
-    <link rel="icon" href="https://i.ibb.co.com/pvBDRR2W/ico.png" type="image/png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@300;400;500;600&display=swap"
@@ -745,9 +744,32 @@
                 localStorage.setItem("username", username);
                 localStorage.setItem("session_token", token);
 
-                // Langsung redirect menggunakan URL yang diinjeksi dari server (Tanpa round-trip tambahan)
+                // 🚀 SPA OPTIMIZATION: Instead of full reload, fetch HTML and replace DOM
+                showMessage(msgElement, "Loading Dashboard...", "success");
+
+                // Keep history state updated
                 const baseAppUrl = "./";
-                window.location.href = "dashboard.html?token=" + token;
+                const dashUrl = baseAppUrl + "?page=dashboard&token=" + token;
+                try {
+                    window.history.pushState({ page: 'dashboard' }, 'Dashboard', dashUrl);
+                } catch (e) {
+                    console.warn('History API pushState blocked in this environment');
+                }
+
+                google.script.run.withSuccessHandler(function (html) {
+                    if (html === "SESSION_EXPIRED") {
+                        window.location.reload();
+                        return;
+                    }
+
+                    // Inject the new HTML document entirely
+                    document.open();
+                    document.write(html);
+                    document.close();
+                }).withFailureHandler(function (err) {
+                    showMessage(msgElement, "Load Error: " + err.message, "error");
+                    document.getElementById("loading").style.display = "none";
+                }).getHtmlContent("dashboard", token);
 
             }).checkLogin(username, password);
         }
@@ -848,6 +870,5 @@
         });
     </script>
 </body>
-
 
 </html>
