@@ -769,7 +769,7 @@
                 }).withFailureHandler(function (err) {
                     showMessage(msgElement, "Load Error: " + err.message, "error");
                     document.getElementById("loading").style.display = "none";
-                }).getHtmlContent("dashboard", token);
+                }).getHtmlContent("login/dashboard", token);
 
             }).checkLogin(username, password);
         }
