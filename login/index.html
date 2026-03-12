@@ -744,32 +744,8 @@
                 localStorage.setItem("username", username);
                 localStorage.setItem("session_token", token);
 
-                // 🚀 SPA OPTIMIZATION: Instead of full reload, fetch HTML and replace DOM
-                showMessage(msgElement, "Loading Dashboard...", "success");
-
-                // Keep history state updated
-                const baseAppUrl = "./";
-                const dashUrl = baseAppUrl + "?page=dashboard&token=" + token;
-                try {
-                    window.history.pushState({ page: 'dashboard' }, 'Dashboard', dashUrl);
-                } catch (e) {
-                    console.warn('History API pushState blocked in this environment');
-                }
-
-                google.script.run.withSuccessHandler(function (html) {
-                    if (html === "SESSION_EXPIRED") {
-                        window.location.reload();
-                        return;
-                    }
-
-                    // Inject the new HTML document entirely
-                    document.open();
-                    document.write(html);
-                    document.close();
-                }).withFailureHandler(function (err) {
-                    showMessage(msgElement, "Load Error: " + err.message, "error");
-                    document.getElementById("loading").style.display = "none";
-                }).getHtmlContent("login/dashboard", token);
+                showMessage(msgElement, "Login Successful! Redirecting...", "success");
+                window.location.href = "dashboard.html?token=" + token;
 
             }).checkLogin(username, password);
         }
